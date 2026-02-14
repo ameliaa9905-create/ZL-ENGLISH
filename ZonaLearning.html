@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ZONE LEARNING PRO ULTRA</title>
+  <link rel="stylesheet" href="ZonaLearning.css">
+</head>
+
+<body>
+<div class="container">
+<h1>💙 ZONE LEARNING PRO ULTRA 💙</h1>
+
+<div class="card">
+<h2>📚 Pilih Kategori</h2>
+<div id="menu"></div>
+</div>
+
+<div class="card" id="quizBox" style="display:none"></div>
+
+<div class="card">
+<h2>📊 Dashboard</h2>
+<div id="dashboard"></div>
+<h2>🏆 Badge</h2>
+<div id="badges"></div>
+</div>
+
+<div class="footer">ZONE LEARNING © 2026</div>
+</div>
+
+<script>
+
+sessionStorage.setItem("zl_score", 0);
+sessionStorage.setItem("zl_level", 1);
+
+let score = parseInt(sessionStorage.getItem("zl_score")) || 0;
+let level = parseInt(sessionStorage.getItem("zl_level")) || 1;
+let currentQuiz = null;
+
+const quizData = {
+"Fruits 🍎": [
+{question:"Buah berwarna kuning panjang?",options:["Banana","Apple","Mango","Grapes"],answer:"Banana"},
+{question:"Buah merah kecil manis?",options:["Strawberry","Papaya","Pear","Kiwi"],answer:"Strawberry"},
+{question:"Which fruit is green inside?",options:["Avocado","Apple","Mango","Banana"],answer:"Avocado"},
+{question:"King of fruit?",options:["Durian","Mango","Apple","Orange"],answer:"Durian"},
+{question:"Buah warna ungu?",options:["Grapes","Kiwi","Papaya","Lemon"],answer:"Grapes"}
+],
+"Animals 🐶": [
+{question:"Hewan sahabat manusia?",options:["Dog","Cat","Tiger","Elephant"],answer:"Cat"},
+{question:"Which animal meows?",options:["Cat","Dog","Lion","Horse"],answer:"Cat"},
+{question:"King of jungle?",options:["Lion","Tiger","Dog","Cow"],answer:"Lion"},
+{question:"Animal with long neck?",options:["Giraffe","Cat","Dog","Elephant"],answer:"Giraffe"},
+{question:"Hewan besar dengan belalai?",options:["Elephant","Cow","Horse","Goat"],answer:"Elephant"}
+],
+"Colors 🎨": [
+{question:"Warna langit cerah?",options:["Blue","Black","Pink","Gray"],answer:"Blue"},
+{question:"Campuran biru dan kuning?",options:["Green","Purple","Orange","Red"],answer:"Green"},
+{question:"What color is blood?",options:["Red","Blue","White","Black"],answer:"Red"},
+{question:"What color is grass?",options:["Green","Yellow","Pink","Gray"],answer:"Green"},
+{question:"Warna bendera Indonesia?",options:["Red and White","Blue and White","Yellow and Green","Black and White"],answer:"Red and White"}
+],
+"Numbers 🔢": [
+{question:"Angka setelah Three?",options:["Four","Five","Two","Six"],answer:"Four"},
+{question:"Angka sebelum Ten?",options:["Nine","Eight","Seven","Eleven"],answer:"Nine"},
+{question:"Two plus three?",options:["Five","Four","Six","Seven"],answer:"Five"},
+{question:"Seven plus three?",options:["Ten","Nine","Eight","Eleven"],answer:"Ten"},
+{question:"What number after nineteen?",options:["Twenty","Eighteen","Seventeen","Ten"],answer:"Twenty"}
+]
+};
+
+function saveProgress(){
+sessionStorage.setItem("zl_score",score);
+sessionStorage.setItem("zl_level",level);
+}
+
+function renderMenu(){
+const menu=document.getElementById("menu");
+menu.innerHTML="";
+Object.keys(quizData).forEach(cat=>{
+const btn=document.createElement("button");
+btn.textContent=cat;
+btn.className="menu-btn";
+btn.onclick=()=>startQuiz(cat);
+menu.appendChild(btn);
+});
+}
+
+function startQuiz(cat){
+currentQuiz={cat:cat,index:0};
+document.getElementById("quizBox").style.display="block";
+renderQuestion();
+}
+
+function renderQuestion(){
+const box=document.getElementById("quizBox");
+const q=quizData[currentQuiz.cat][currentQuiz.index];
+box.innerHTML=`<h3>${currentQuiz.cat}</h3><p>${q.question}</p>`;
+
+q.options.sort(()=>Math.random()-0.5);
+q.options.forEach(opt=>{
+const btn=document.createElement("button");
+btn.textContent=opt;
+btn.onclick=()=>checkAnswer(opt);
+box.appendChild(btn);
+});
+
+const back=document.createElement("button");
+back.textContent="⬅ Kembali";
+back.onclick=()=>{box.style.display="none";currentQuiz=null;};
+box.appendChild(document.createElement("br"));
+box.appendChild(back);
+}
+
+function checkAnswer(selected){
+const q=quizData[currentQuiz.cat][currentQuiz.index];
+
+if(selected===q.answer){
+alert("Benar! 🎉 +10 poin");
+score+=10;
+
+if(score % 50 === 0){
+level++;
+}
+
+saveProgress();
+
+if(currentQuiz.index + 1 < quizData[currentQuiz.cat].length){
+currentQuiz.index++;
+renderQuestion();
+}else{
+alert("Kategori selesai!");
+document.getElementById("quizBox").style.display="none";
+currentQuiz=null;
+}
+
+}else{
+alert("Salah ❌ Coba lagi ya!");
+}
+
+updateDashboard();
+}
+
+
+function updateDashboard(){
+document.getElementById("dashboard").innerHTML=`⭐ Poin: ${score}<br>🎯 Level: ${level}`;
+renderBadge();
+}
+
+function renderBadge(){
+const badge=document.getElementById("badges");
+badge.innerHTML="";
+
+if(score>=50&&score<150){
+badge.innerHTML='<div class="badge" style="background:gold;color:black">🥉 Beginner</div>';
+}
+else if(score>=150&&score<300){
+badge.innerHTML='<div class="badge" style="background:silver;color:black">🥈 Intermediate</div>';
+}
+else if(score>=300){
+badge.innerHTML='<div class="badge" style="background:gold;color:black">🥇 Master</div>';
+}
+else{
+badge.innerHTML='<div style="opacity:0.6">Belum ada badge</div>';
+}
+}
+
+renderMenu();
+updateDashboard();
+
+</script>
+</body>
+</html>
